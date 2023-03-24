@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using TMPro.EditorUtilities;
+
 
 public class UpgradeMenu : MonoBehaviour
 {
@@ -19,6 +22,8 @@ public class UpgradeMenu : MonoBehaviour
     void Start()
     {
         mainCam = GameObject.Find("MainCamera").GetComponent<Camera>();
+        UpgradeMenuRoot = new GameObject("UpgradeMenuRoot");
+        UpgradeMenuRoot.AddComponent<>
 
     }
 
@@ -52,5 +57,11 @@ public class UpgradeMenu : MonoBehaviour
                 }
             }
         }
+    }
+
+    private GameObject createUpgradeCard(Transform parent, int i)
+    {
+        GameObject root = new GameObject("UpgradeCard" + i);
+        root.AddComponent<TextMes>
     }
 }
