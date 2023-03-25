@@ -1,11 +1,11 @@
 * text=auto
 
 # Unity files
-*.meta -text merge=unityyamlmerge diff
-*.unity -text merge=unityyamlmerge diff
-*.asset -text merge=unityyamlmerge diff
-*.prefab -text merge=unityyamlmerge diff
-*.mat -text merge=unityyamlmerge diff
+*.meta -text merge=unityyamlmerge diff linguist-generated
+*.unity -text merge=unityyamlmerge diff linguist-generated
+*.asset -text merge=unityyamlmerge diff linguist-generated
+*.prefab -text merge=unityyamlmerge diff linguist-generated
+*.mat -text merge=unityyamlmerge diff linguist-generated
 *.anim -text merge=unityyamlmerge diff
 *.controller -text merge=unityyamlmerge diff
 *.overrideController -text merge=unityyamlmerge diff
