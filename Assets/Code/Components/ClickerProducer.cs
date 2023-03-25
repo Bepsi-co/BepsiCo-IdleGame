@@ -6,6 +6,7 @@ using UnityEngine;
 public class ClickerProducer : ProducerBase
 {
     public override void Start(){
+        base.Start();
         BaseProduction = 100;
     }
     
