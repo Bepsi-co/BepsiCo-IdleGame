@@ -5,8 +5,8 @@ using UnityEngine;
 public class ClickerUpgradeManager : UpgradeManagerBase
 {
     // Start is called before the first frame update
-    void Start()
+    public override void Start()
     {
-
+        base.Start();
     }
 }
