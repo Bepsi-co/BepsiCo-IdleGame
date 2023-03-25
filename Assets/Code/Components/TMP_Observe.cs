@@ -39,7 +39,7 @@ public class TMP_Observe : MonoBehaviour
         Debug.Log("datas = " + datas.Select(x => x.ToString()).ToArray());
         string text = string.Format(format, datas.Select(x => x.ToString()).ToArray());
         Debug.Log("text = " + text);
-        TMPptr.SetText(text);   
+        TMPptr.SetText(text);
     }
 
     private object GetData(string uri)
