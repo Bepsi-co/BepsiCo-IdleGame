@@ -5,9 +5,12 @@ using UnityEngine;
 [RequireComponent(typeof(ClickerUpgradeManager))]
 public class ClickerProducer : ProducerBase
 {
+    public override void Start(){
+        BaseProduction = 100;
+    }
+    
     //When clicked, generate income
     void OnMouseDown(){
-        BaseProduction = 100;
         Coreptr.Bank += BaseProduction;
     }
 
