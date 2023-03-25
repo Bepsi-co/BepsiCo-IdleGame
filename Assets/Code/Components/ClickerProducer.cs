@@ -15,8 +15,30 @@ public class ClickerProducer : ProducerBase
         Coreptr.Bank += BaseProduction;
     }
 
-    //Need this blank to avoid running the FixedUpdate base in ProducerBase
-    public override void FixedUpdate(){
-        
+    protected override double Tick(){
+        double ProductionThisTick = 0;
+
+        // Production from Upgrades
+        if (UMptr != null)
+            {
+                
+                ProductionThisTick += UMptr.Tick();
+            }
+        //See if the user is clicking the click object (zone)
+        if (Input.GetMouseButtonDown(0))
+         {
+             RaycastHit raycastHit;
+             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+             if (Physics.Raycast(ray, out raycastHit, 100f))
+             {
+                 if (raycastHit.transform != null)
+                 {
+                    // Base Production
+                    ProductionThisTick += BaseProduction;
+                    
+                 }
+             }
+         }
+         return ProductionThisTick;
     }
 }
