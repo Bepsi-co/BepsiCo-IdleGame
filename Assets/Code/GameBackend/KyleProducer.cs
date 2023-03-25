@@ -5,6 +5,10 @@ using UnityEngine;
 [RequireComponent(typeof(KyleUpgradeManager))]
 public class KyleProducer : ProducerBase
 {
+    // configuration
+    public new string Name = "Kyle";
+    public new const double PurchasePrice = 100;
+
     // Start is called before the first frame update
     public override void Start()
     {

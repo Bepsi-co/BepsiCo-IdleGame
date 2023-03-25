@@ -9,12 +9,17 @@ public abstract class ProducerBase : MonoBehaviour
     public double BaseProduction { get => _BaseProduction; set => _BaseProduction = value; }
     protected double _BaseProduction;
 
-    protected double ProductionLastTick { get => _ProductionLastTick; private set => _ProductionLastTick = value; }
+    protected double ProductionLastTick { get => _ProductionLastTick; set => _ProductionLastTick = value; }
     protected double _ProductionLastTick;
 
     protected Core Coreptr = null; 
     protected UpgradeManagerBase UMptr = null;
     //protected ProducerVisual PVptr = null;
+
+
+    // configuration
+    public const string Name = "";
+    public const double PurchasePrice = 100;
 
     protected virtual double Tick()
     {

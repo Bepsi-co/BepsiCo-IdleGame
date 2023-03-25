@@ -14,12 +14,19 @@ public class TMP_Observe : MonoBehaviour
     protected object[] datas;
 
     // inspector fields
+<<<<<<< HEAD
     [Tooltip("Gameobject.Component.Field")]
     [SerializeField]
     string[] URI;
     [Tooltip("Gold: {0:C2}")]
     [SerializeField]
     string format;
+=======
+    [SerializeField] [Tooltip("Gameobject.Component.Field")]
+    public string[] URI;
+    [SerializeField] [Tooltip("Score: {0:C2}")]
+    public string format;
+>>>>>>> 7689c3d (helper library started, ProducerMenuCard system started. untested)
 
     // Start is called before the first frame update
     void Start()
