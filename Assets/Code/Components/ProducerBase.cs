@@ -28,7 +28,7 @@ public abstract class ProducerBase : MonoBehaviour
         }
 
         // Base Production
-        ProductionThisTick = BaseProduction;
+        ProductionThisTick += BaseProduction;
 
         // return
         ProductionLastTick = ProductionThisTick;
