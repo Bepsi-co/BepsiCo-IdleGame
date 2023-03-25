@@ -23,7 +23,6 @@ public abstract class ProducerBase : MonoBehaviour
         // Production from Upgrades
         if (UMptr != null)
         {
-            
             ProductionThisTick += UMptr.Tick();
         }
 
