@@ -17,7 +17,7 @@ public class TMP_Observe : MonoBehaviour
     [Tooltip("Gameobject.Component.Field")]
     [SerializeField]
     string[] URI;
-    [Tooltip("Score: {0:C2}")]
+    [Tooltip("Gold: {0:C2}")]
     [SerializeField]
     string format;
 
