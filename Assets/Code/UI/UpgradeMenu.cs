@@ -23,7 +23,7 @@ public class UpgradeMenu : MonoBehaviour
     {
         mainCam = GameObject.Find("MainCamera").GetComponent<Camera>();
         UpgradeMenuRoot = new GameObject("UpgradeMenuRoot");
-        UpgradeMenuRoot.AddComponent<>
+        UpgradeMenuRoot.AddComponent<TextMeshProUGUI>();
 
     }
 
@@ -62,6 +62,9 @@ public class UpgradeMenu : MonoBehaviour
     private GameObject createUpgradeCard(Transform parent, int i)
     {
         GameObject root = new GameObject("UpgradeCard" + i);
-        root.AddComponent<TextMes>
+        root.transform.parent = parent;
+        root.AddComponent<TextMesh>();
+
+        return root;
     }
 }
