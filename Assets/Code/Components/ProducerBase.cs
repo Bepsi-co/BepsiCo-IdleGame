@@ -28,7 +28,7 @@ public abstract class ProducerBase : MonoBehaviour
         }
 
         // Base Production
-        ProductionThisTick = BaseProduction;
+        ProductionThisTick += BaseProduction;
 
         // return
         ProductionLastTick = ProductionThisTick;
@@ -47,6 +47,7 @@ public abstract class ProducerBase : MonoBehaviour
     // Update is called once per frame
     public virtual void FixedUpdate()
     {
-        Coreptr.Bank += Tick();
+        //Divide per tick value by 50 to convert to a per second value.
+        Coreptr.Bank += Tick()/50;
     }
 }

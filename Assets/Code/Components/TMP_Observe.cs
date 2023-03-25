@@ -17,7 +17,7 @@ public class TMP_Observe : MonoBehaviour
     [Tooltip("Gameobject.Component.Field")]
     [SerializeField]
     string[] URI;
-    [Tooltip("Score: {0:C2}")]
+    [Tooltip("Gold: {0:C2}")]
     [SerializeField]
     string format;
 
@@ -39,7 +39,7 @@ public class TMP_Observe : MonoBehaviour
         Debug.Log("datas = " + datas.Select(x => x.ToString()).ToArray());
         string text = string.Format(format, datas.Select(x => x.ToString()).ToArray());
         Debug.Log("text = " + text);
-        TMPptr.SetText(text);   
+        TMPptr.SetText(text);
     }
 
     private object GetData(string uri)
