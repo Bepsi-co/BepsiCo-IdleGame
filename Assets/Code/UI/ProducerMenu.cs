@@ -1,11 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using TMPro;
 using TMPro.EditorUtilities;
 using UnityEngine.UI;
 using Assets.Code.Helpers;
+
+[Serializable] public class SerializableDictionary_StringSprite : SerializableDictionary<string, Sprite> { }
 
 [RequireComponent(typeof(Image))]
 public class ProducerMenu : MonoBehaviour
@@ -13,27 +17,32 @@ public class ProducerMenu : MonoBehaviour
     // pointers
     private Camera mainCam = null;
 
-    // mouse click debounce
-    private bool debounceIsMouseDown = false;
-    private int debounceCounter = 0;
-    private const int debounceFrames = 3;
-
     // menu object and component pointers
-    GameObject menuRoot;
-    Image backgroundImage;
-    List<ProducerMenuCard> producerCards;
-
-    // inspector fields
-    public List<Type> _producers = new List<Type>() { typeof(KyleProducer) }; // TODO: make this work
+    GameObject menuRoot = null;
+    Image backgroundImage = null;
+    List<ProducerMenuCard> producerCards = new List<ProducerMenuCard>();
 
     // private data
-    List<ProducerBase> _purchasedProducers;
+    public List<Type> _producers = new List<Type>();
+    List<ProducerBase> _purchasedProducers = new List<ProducerBase>();
+
+    // inspector
+    [SerializeField] [Tooltip("Menu Background")]
+    Sprite background;
+    [SerializeField] [Tooltip("Card Background")]
+    Sprite cardBackground;
+    [SerializeField] [Tooltip("Card Font")]
+    TMP_FontAsset cardFont;
+    [SerializeField] [Tooltip("Card Font Size")]
+    float cardFontSize = 25;
+    [SerializeField] [Tooltip("Card Images")]
+    SerializableDictionary_StringSprite cardImages = new SerializableDictionary_StringSprite();
 
     // Start is called before the first frame update
     void Start()
     {
         // bind pointers
-        mainCam = GameObject.Find("MainCamera").GetComponent<Camera>();
+        mainCam = GameObject.Find("MainCamera")?.GetComponent<Camera>();
         menuRoot = gameObject;
         backgroundImage = gameObject.GetComponent<Image>();
 
@@ -41,129 +50,295 @@ public class ProducerMenu : MonoBehaviour
         _purchasedProducers.AddRange(FindObjectsOfType<ProducerBase>(true));
 
         // generate producer cards
-        producerCards = new List<ProducerMenuCard>();
-        foreach (Type prod_type in _producers)
+        _producers = Reflection.FindAllDerivedFrom<ProducerBase>().ToList();
+        CardConfig cardConfig = new CardConfig()
         {
-
-        }
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if(debounceIsMouseDown)
+            parent = menuRoot,
+            offset = new Vector2(0f, -0.01f),
+            background = cardBackground,
+            font = cardFont,
+            fontSize = cardFontSize
+        };
+        foreach (Type prodType in _producers)
         {
-            debounceCounter++;
-            if(debounceCounter >= debounceFrames)
-            {
-                debounceCounter = 0;
-                debounceIsMouseDown = false;
-            }
-        } 
-        else
-        {
-            if (Input.GetMouseButtonDown(0))
-            { // if left button pressed...
-                debounceIsMouseDown = true;
+            // get image if provided
+            if (cardImages.ContainsKey((string)prodType.GetField("Name").GetValue(null)))
+                cardConfig.image = cardImages[(string)prodType.GetField("Name").GetValue(null)];
+            else
+                cardConfig.image = null; // TODO: default image?
 
-                Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
-                RaycastHit hit;
-                if (Physics.Raycast(ray, out hit))
-                {
-                    UpgradeManagerBase umb = hit.collider.GetComponentInParent<UpgradeManagerBase>();
-                    if (umb != null)
-                    {
+            if (isProducerPurchased(prodType))
+                producerCards.Add(new ProducerMenuCard(_purchasedProducers.Where(x => x.GetType().IsEquivalentTo(prodType)).First(), cardConfig));
+            else
+                producerCards.Add(new ProducerMenuCard(prodType, cardConfig));
 
-                    }
-                }
-            }
         }
     }
 
-    private GameObject createUpgradeCard(Transform parent, int i)
+    private bool isProducerPurchased(Type producerType)
     {
-        GameObject root = new GameObject("UpgradeCard" + i);
-        root.transform.parent = parent;
-        root.AddComponent<TextMesh>();
-
-        return root;
+        return _purchasedProducers
+            .Select<ProducerBase, Type>(x => x.GetType())
+            .Any(t => Reflection.IsSameOrSubclass(t, producerType));
     }
 
     // inner class to help with making UI cards per producer
-    class ProducerMenuCard
+    internal class ProducerMenuCard
     {
-        public Type ProducerType { get => _producerType; private set => _producerType = value; }
-        private Type _producerType;
+        public Type ProducerType { get => _ProducerType; private set => _ProducerType = value; }
+        private Type _ProducerType;
+
+        public ProducerBase Producer { get => _Producer; private set => _Producer = value; }
+        private ProducerBase _Producer;
+
+        public bool IsPurchased { get => _IsPurchased; }
+        private bool _IsPurchased;
 
         // game objects
-        GameObject cardRoot;
-        GameObject cardImage;
-        GameObject cardTmpTitle;
-        GameObject cardTmpLevel;
-        GameObject cardBtnLevelUp;
-        GameObject cardBtnUpgrade;
+        private GameObject cardRoot;
+        private GameObject cardImage;
+        private GameObject cardTmpTitle;
+        private GameObject cardTmpLevel;
+        private GameObject cardBtnLevelUp;
+        private GameObject cardBtnUpgrade;
 
-
-        ProducerMenuCard(Type producerType, GameObject parent, Vector3 offset)
+        #region Constructors
+        // generated card for an unpurchased producer
+        internal ProducerMenuCard(Type producerType, CardConfig config) 
         {
             // parameter validation
-            if(Reflection.IsSameOrSubclass(producerType, typeof(ProducerBase)))
-                ProducerType = producerType;
-            else
-                throw new ArgumentException("Parmater is not derived from ProducerBase", "producerType");
+            if(!Reflection.IsSameOrSubclass(producerType, typeof(ProducerBase))) {
+                throw new ArgumentException("ProducerMenuCard must take a type that derived from ProducerBase");
+            }
+            ProducerType = producerType;
+            Producer = null;
+            ContructorMain(config);
+        }
 
+        // generates card for a purchased producer
+        internal ProducerMenuCard(ProducerBase producer, CardConfig config)
+        {
+            // parameters
+            ProducerType = producer.GetType();
+            Producer = producer;
+            ContructorMain(config);
+        }
+
+        // Common contructor method called by both above
+        private void ContructorMain(CardConfig config)
+        {
             // make game object root
-            cardRoot = new GameObject(parent.name + "." + ProducerType.ToString() + "Card", typeof(RectTransform));
-            ((RectTransform)cardRoot.transform).parent = parent.transform;
-            ((RectTransform)cardRoot.transform).position = offset;
+            generateCardRoot(config.parent, config.offset, config.background);
 
-            /* ============ make card elements ============= */
-            // Image
-            cardImage = new GameObject(cardRoot.name + ".Image");
-            cardImage.transform.parent = cardRoot.transform;
-            UI.SetAnchor((RectTransform)cardImage.transform, AnchorPresets.MiddleLeft);
-            UI.SetPivot((RectTransform)cardImage.transform, PivotPresets.MiddleLeft);
-            cardImage.AddComponent<Image>();
+            // make card elements
+            generateCardImage(cardRoot, config.image);
+            generateCardTmpTitle(cardRoot, (Producer != null ? Producer.Name : (string)ProducerType.GetField("Name").GetValue(null)), 
+                config.font, config.fontSize);
+            generateCardTmpLevel(cardRoot, config.font, config.fontSize);
+            generateCardBtnLevel(cardRoot, config.font, config.fontSize);
+            generateCardBtnUpgrade(cardRoot, config.font, config.fontSize);
 
-            // Title
-            cardTmpTitle = new GameObject(cardRoot.name + ".TmpTitle", typeof(RectTransform));
-            cardTmpTitle.transform.parent = cardRoot.transform;
-            UI.SetAnchor((RectTransform)cardTmpTitle.transform, AnchorPresets.MiddleLeft, (int)cardTmpTitle.GetComponent<Image>().rectTransform.rect.width);
-            UI.SetPivot((RectTransform)cardTmpTitle.transform, PivotPresets.MiddleLeft);
+            // set purchase state
+            setIsPurchased(Producer != null);
+        }
+        #endregion
+
+        // methods to generate the individual UI objects on the card
+        // offset is a multiplier of width and height of parent
+        #region UIgeneration
+        private void generateCardRoot(GameObject parent, Vector2 offset, Sprite background = null)
+        {
+            // create
+            cardRoot = new GameObject("Card", typeof(RectTransform));
+
+            // transform
+            UI.Arrange((RectTransform)cardRoot.transform, (RectTransform)parent.transform, 
+                AnchorPresets.TopCenter, PivotPresets.TopCenter, 
+                offset, 
+                new Vector2(0.9f, 0.2f));
+
+            // background
+            var cardRoot_ImageComp = cardRoot.AddComponent<Image>();
+            if (background != null)
+                cardRoot_ImageComp.sprite = background;
+        }
+
+        private void generateCardImage(GameObject parent, Sprite image = null)
+        {
+            // create
+            cardImage = new GameObject("Image", typeof(RectTransform));
+
+            // transform
+            UI.Arrange((RectTransform)cardImage.transform, (RectTransform)parent.transform, 
+                AnchorPresets.TopLeft, PivotPresets.TopLeft, 
+                new Vector2(0.05f, -0.05f),
+                new Vector2(0.2f, 0.9f));
+
+            // background
+            var cardImage_ImageComp = cardImage.AddComponent<Image>();
+            if (image != null)
+                cardImage_ImageComp.sprite = image;
+        }
+
+        private void generateCardTmpTitle(GameObject parent, string title, TMP_FontAsset font, float fontSize)
+        {
+            // create
+            cardTmpTitle = new GameObject("TmpTitle", typeof(RectTransform));
+
+            // transform
+            UI.Arrange((RectTransform)cardTmpTitle.transform, (RectTransform)parent.transform, 
+                AnchorPresets.TopLeft, PivotPresets.TopLeft, 
+                new Vector2(0.3f, -0.05f),
+                new Vector2(0.3f, 0.3f));
+
+            // title text
             var cardTmpTitle_TmpComp = cardTmpTitle.AddComponent<TextMeshProUGUI>();
-            cardTmpTitle_TmpComp.SetText((string)producerType.GetProperty("Name").GetConstantValue());
+            cardTmpTitle_TmpComp.SetText(title);
+            cardTmpTitle_TmpComp.font = font;
+            cardTmpTitle_TmpComp.fontSize = fontSize;
+        }
 
-            // Level
-            cardTmpLevel = new GameObject(cardRoot.name + ".TmpLevel", typeof(RectTransform));
-            cardTmpLevel.transform.parent = cardRoot.transform;
-            UI.SetAnchor((RectTransform)cardTmpLevel.transform, AnchorPresets.TopRight);
-            UI.SetPivot((RectTransform)cardTmpLevel.transform, PivotPresets.TopRight);
+        private void generateCardTmpLevel(GameObject parent, TMP_FontAsset font, float fontSize)
+        {
+            // create
+            cardTmpLevel = new GameObject("TmpLevel", typeof(RectTransform));
+
+            // transform
+            UI.Arrange((RectTransform)cardTmpLevel.transform, (RectTransform)parent.transform,
+                AnchorPresets.TopLeft, PivotPresets.TopLeft,
+                new Vector2(0.65f, -0.05f),
+                new Vector2(0.3f, 0.3f));
+
+            // level text
             var cardTmpLevel_TmpComp = cardTmpLevel.AddComponent<TextMeshProUGUI>();
             cardTmpLevel_TmpComp.SetText("| LVL XXX");
-            var cardTmpLevel_TmpObserve = cardTmpLevel.AddComponent<TMP_Observe>();
-            cardTmpLevel_TmpObserve.enabled = false;
-
-            // Button Level Up
-            cardBtnLevelUp = new GameObject(cardRoot.name + ".BtnLevelUp", typeof(RectTransform));
-            cardBtnLevelUp.transform.parent = cardRoot.transform;
-            UI.SetAnchor((RectTransform)cardBtnLevelUp.transform, AnchorPresets.BottomLeft, (int)cardTmpLevel.GetComponent<Image>().rectTransform.rect.width);
-            UI.SetPivot((RectTransform)cardBtnLevelUp.transform, PivotPresets.BottomLeft);
-            var cardBtnLevelUp_BtnComp = cardBtnLevelUp.AddComponent<Button>();
-            var cardBtnLevelUp_TmpComp = cardBtnLevelUp.AddComponent<TextMeshProUGUI>();
-            cardBtnLevelUp_TmpComp.SetText("Purchase" + Environment.NewLine + ((double)producerType.GetProperty("PurchasePrice").GetConstantValue()).ToString("#.##"));
-            var cardBtnLevelUp_TmpObserve= cardBtnLevelUp.AddComponent<TMP_Observe>();
-            cardBtnLevelUp_TmpComp.enabled = false;
-
-            // Button Upgrade
-            cardBtnUpgrade = new GameObject(cardRoot.name + ".BtnUpgrade", typeof(RectTransform));
-            cardBtnUpgrade.transform.parent = cardRoot.transform;
-            UI.SetAnchor((RectTransform)cardBtnUpgrade.transform, AnchorPresets.BottomRight);
-            UI.SetPivot((RectTransform)cardBtnUpgrade.transform, PivotPresets.BottomRight);
-            var cardBtnUpgrade_BtnComp = cardBtnUpgrade.AddComponent<Button>();
-            var cardBtnUpgrade_TmpComp = cardBtnUpgrade.AddComponent<TextMeshProUGUI>();
-            cardBtnUpgrade_TmpComp.SetText("Upgrades");
-
+            cardTmpLevel_TmpComp.font = font;
+            cardTmpLevel_TmpComp.fontSize = fontSize;
         }
+
+        private void generateCardBtnLevel(GameObject parent, TMP_FontAsset font, float fontSize)
+        {
+            // create
+            cardBtnLevelUp = new GameObject("BtnLevelUp", typeof(RectTransform));
+
+            // transform
+            UI.Arrange((RectTransform)cardBtnLevelUp.transform, (RectTransform)parent.transform,
+                AnchorPresets.TopLeft, PivotPresets.TopLeft,
+                new Vector2(0.3f, -0.4f),
+                new Vector2(0.3f, 0.55f));
+
+            // make button
+            var cardBtnLevelUp_ButtonComp = cardBtnLevelUp.AddComponent<Button>();
+            var cardBtnLevelUp_TmpComp = cardBtnLevelUp.AddComponent<TextMeshProUGUI>();
+            cardBtnLevelUp_TmpComp.font = font;
+            cardBtnLevelUp_TmpComp.fontSize = fontSize;
+        }
+
+        private void generateCardBtnUpgrade(GameObject parent, TMP_FontAsset font, float fontSize)
+        {
+            // create
+            cardBtnUpgrade = new GameObject("BtnUpgrade", typeof(RectTransform));
+
+            // transform
+            UI.Arrange((RectTransform)cardBtnUpgrade.transform, (RectTransform)parent.transform,
+                AnchorPresets.TopLeft, PivotPresets.TopLeft,
+                new Vector2(0.65f, -0.4f),
+                new Vector2(0.3f, 0.55f));
+
+            // make button
+            cardBtnUpgrade.AddComponent<Button>();
+            var cardBtnUpgrade_TmpComp = cardBtnUpgrade.AddComponent<TextMeshProUGUI>();
+            cardBtnUpgrade_TmpComp.font = font;
+            cardBtnUpgrade_TmpComp.fontSize = fontSize;
+        }
+        #endregion
+
+        // methods that handle card state being different for purchased upgrades
+        #region IsPurchasedBindings
+        private void setIsPurchased(bool isPurchased)
+        {
+            setIsPurchased_CardTmpLevel(isPurchased);
+            setIsPurchased_CardBtnLevelUp(isPurchased);
+            setIsPurchased_CardBtnUpgrade(isPurchased);
+            _IsPurchased = isPurchased;
+        }
+        private void setIsPurchased_CardTmpLevel(bool isPurchased)
+        {
+            if (isPurchased)
+            {
+                var cardTmpLevel_TmpObserve = cardTmpLevel.AddComponent<TMP_Observe>();
+                cardTmpLevel_TmpObserve.URI = new string[] { Producer.gameObject.name + "." + Producer.Name + ".Level" };
+                cardTmpLevel_TmpObserve.format = "| LVL {0:000}";
+            }
+        }
+        private void setIsPurchased_CardBtnLevelUp(bool isPurchased)
+        {
+            var cardBtnLevelUp_TmpComp = cardBtnLevelUp.GetComponent<TextMeshProUGUI>();
+            var cardBtnLevelUp_BtnComp = cardBtnLevelUp.GetComponent<Button>();
+            if (isPurchased)
+            {
+                cardBtnLevelUp_BtnComp.onClick.AddListener(btnLevelUp_OnClick);
+                var cardBtnLevelUp_TmpObserve = cardBtnLevelUp.AddComponent<TMP_Observe>();
+                cardBtnLevelUp_TmpObserve.URI = new string[] { Producer.gameObject.name + "." + Producer.Name + ".LevelCost" };
+                cardBtnLevelUp_TmpObserve.format = "LVL UP\r\n{0:C2}";
+            }
+            else
+            {
+                cardBtnLevelUp_TmpComp.SetText("Purchase" + Environment.NewLine + ((double)_ProducerType.GetField("PurchasePrice").GetValue(null)).ToString("#.##"));
+                cardBtnLevelUp_BtnComp.onClick.AddListener(btnPurchase_OnClick);
+            }
+        }
+        private void setIsPurchased_CardBtnUpgrade(bool isPurchased)
+        {
+            var cardBtnUpgrade_BtnComp = cardBtnUpgrade.GetComponent<Button>();
+            var cardBtnUpgrade_TmpComp = cardBtnUpgrade.GetComponent<TextMeshProUGUI>();
+            if (isPurchased)
+            {
+                cardBtnUpgrade_TmpComp.SetText("Upgrades");
+                cardBtnUpgrade_BtnComp.onClick.AddListener(btnUpgrade_OnClick);
+            }
+            else
+            {
+                cardBtnUpgrade_BtnComp.enabled = false;
+                cardBtnUpgrade_TmpComp.enabled = false;
+            }
+        }
+        #endregion
+
+        // bindings to the buttons on the card
+        #region ButtonBindings
+        private void btnLevelUp_OnClick()
+        {
+            if(Producer != null)
+            {
+                Producer.LevelUp();
+            }
+        }
+
+        private void btnPurchase_OnClick()
+        {
+            GameObject producer_go = new GameObject((string)ProducerType.GetField("Name").GetValue(null));
+            Producer = (ProducerBase)producer_go.AddComponent(ProducerType); // due to required component this should also add the upgrade manager
+            producer_go.transform.parent = GameObject.Find("Producers").transform;
+
+            // enable various components
+            setIsPurchased(true);
+        }
+
+        private void btnUpgrade_OnClick()
+        {
+            // TODO: implement upgrade menu
+        }
+        #endregion
+    }
+
+    internal struct CardConfig
+    {
+        public GameObject parent;
+        public Vector3 offset;
+        public Sprite background;
+        public TMP_FontAsset font;
+        public float fontSize;
+        public Sprite image;
     }
 }

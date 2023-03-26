@@ -6,7 +6,7 @@ using UnityEngine;
 public class KyleProducer : ProducerBase
 {
     // configuration
-    public new string Name = "Kyle";
+    public new const string Name = "Kyle";
     public new const double PurchasePrice = 100;
 
     // Start is called before the first frame update
@@ -14,5 +14,6 @@ public class KyleProducer : ProducerBase
     {
         base.Start();
         BaseProduction = 100;
+        LevelCost = 100;
     }
 }

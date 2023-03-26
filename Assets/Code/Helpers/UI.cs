@@ -51,11 +51,9 @@ namespace Assets.Code.Helpers
 
     public static class UI
     {
-        public static void SetAnchor(this RectTransform source, AnchorPresets allign, int offsetX = 0, int offsetY = 0)
+        public static void SetAnchor(RectTransform source, AnchorPresets align)
         {
-            source.anchoredPosition = new Vector3(offsetX, offsetY, 0);
-
-            switch (allign)
+            switch (align)
             {
                 case (AnchorPresets.TopLeft):
                     {
@@ -161,7 +159,7 @@ namespace Assets.Code.Helpers
             }
         }
 
-        public static void SetPivot(this RectTransform source, PivotPresets preset)
+        public static void SetPivot(RectTransform source, PivotPresets preset)
         {
 
             switch (preset)
@@ -214,6 +212,20 @@ namespace Assets.Code.Helpers
                         break;
                     }
             }
+        }
+
+        // arranges a UI transform inside its parent transform
+        // anchor and pivot are set like in inspector
+        // offset is a multiplier of the parent width and height which determins the anchor position
+        // widthMult and heightMult determine width and height as multiplier of parent width and height respectively
+        public static void Arrange(RectTransform source, RectTransform parent, AnchorPresets anchor, PivotPresets pivot, Vector2 anchorOffsetMult, Vector2 sizeMult)
+        {
+            source.SetParent(parent, false);
+            Vector2 parentSize = new Vector2(parent.rect.width, parent.rect.height);
+            source.anchoredPosition = anchorOffsetMult * parentSize;
+            source.sizeDelta = sizeMult * parentSize;
+            UI.SetAnchor(source, anchor);
+            UI.SetPivot(source, pivot);
         }
     }
 }
