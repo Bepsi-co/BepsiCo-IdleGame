@@ -14,7 +14,6 @@ public struct Upgrade
     public UpgradeOnPurchase OnPurchase;
 }
 
-[RequireComponent(typeof(Collider))] // anything with upgrades needs a collider so the upgrade menu's raycast based onClick function works
 public abstract class UpgradeManagerBase : MonoBehaviour
 {
     public int[] UpgradeLevels { get => _UpgradeLevels; protected set => _UpgradeLevels = value; }

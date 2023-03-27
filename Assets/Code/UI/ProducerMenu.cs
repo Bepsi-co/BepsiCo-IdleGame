@@ -37,6 +37,8 @@ public class ProducerMenu : MonoBehaviour
     float cardFontSize = 25;
     [SerializeField] [Tooltip("Card Images")]
     SerializableDictionary_StringSprite cardImages = new SerializableDictionary_StringSprite();
+    [SerializeField] [Tooltip("Card Color")]
+    Color cardColor;
 
     // Start is called before the first frame update
     void Start()
@@ -57,7 +59,8 @@ public class ProducerMenu : MonoBehaviour
             offset = new Vector2(0f, -0.01f),
             background = cardBackground,
             font = cardFont,
-            fontSize = cardFontSize
+            fontSize = cardFontSize,
+            color = cardColor
         };
         foreach (Type prodType in _producers)
         {
@@ -99,8 +102,8 @@ public class ProducerMenu : MonoBehaviour
         private GameObject cardImage;
         private GameObject cardTmpTitle;
         private GameObject cardTmpLevel;
-        private GameObject cardBtnLevelUp;
-        private GameObject cardBtnUpgrade;
+        private ButtonDescriptor cardBtnLevelUp;
+        private ButtonDescriptor cardBtnUpgrade;
 
         #region Constructors
         // generated card for an unpurchased producer
@@ -128,7 +131,7 @@ public class ProducerMenu : MonoBehaviour
         private void ContructorMain(CardConfig config)
         {
             // make game object root
-            generateCardRoot(config.parent, config.offset, config.background);
+            generateCardRoot(config.parent, config.offset, config.color, config.background);
 
             // make card elements
             generateCardImage(cardRoot, config.image);
@@ -146,7 +149,7 @@ public class ProducerMenu : MonoBehaviour
         // methods to generate the individual UI objects on the card
         // offset is a multiplier of width and height of parent
         #region UIgeneration
-        private void generateCardRoot(GameObject parent, Vector2 offset, Sprite background = null)
+        private void generateCardRoot(GameObject parent, Vector2 offset, Color color, Sprite background = null)
         {
             // create
             cardRoot = new GameObject("Card", typeof(RectTransform));
@@ -161,6 +164,8 @@ public class ProducerMenu : MonoBehaviour
             var cardRoot_ImageComp = cardRoot.AddComponent<Image>();
             if (background != null)
                 cardRoot_ImageComp.sprite = background;
+            else
+                cardRoot_ImageComp.color = color;
         }
 
         private void generateCardImage(GameObject parent, Sprite image = null)
@@ -219,37 +224,19 @@ public class ProducerMenu : MonoBehaviour
         private void generateCardBtnLevel(GameObject parent, TMP_FontAsset font, float fontSize)
         {
             // create
-            cardBtnLevelUp = new GameObject("BtnLevelUp", typeof(RectTransform));
-
-            // transform
-            UI.Arrange((RectTransform)cardBtnLevelUp.transform, (RectTransform)parent.transform,
-                AnchorPresets.TopLeft, PivotPresets.TopLeft,
-                new Vector2(0.3f, -0.4f),
-                new Vector2(0.3f, 0.55f));
-
-            // make button
-            var cardBtnLevelUp_ButtonComp = cardBtnLevelUp.AddComponent<Button>();
-            var cardBtnLevelUp_TmpComp = cardBtnLevelUp.AddComponent<TextMeshProUGUI>();
-            cardBtnLevelUp_TmpComp.font = font;
-            cardBtnLevelUp_TmpComp.fontSize = fontSize;
+            cardBtnLevelUp = UI.GenerateButton((RectTransform)parent.transform, "BtnLevelUp", 
+                AnchorPresets.TopLeft, PivotPresets.TopLeft, new Vector2(0.3f, -0.4f), new Vector2(0.3f, 0.55f));
+            cardBtnLevelUp.textComp.font = font;
+            cardBtnLevelUp.textComp.fontSize = fontSize;
         }
 
         private void generateCardBtnUpgrade(GameObject parent, TMP_FontAsset font, float fontSize)
         {
             // create
-            cardBtnUpgrade = new GameObject("BtnUpgrade", typeof(RectTransform));
-
-            // transform
-            UI.Arrange((RectTransform)cardBtnUpgrade.transform, (RectTransform)parent.transform,
-                AnchorPresets.TopLeft, PivotPresets.TopLeft,
-                new Vector2(0.65f, -0.4f),
-                new Vector2(0.3f, 0.55f));
-
-            // make button
-            cardBtnUpgrade.AddComponent<Button>();
-            var cardBtnUpgrade_TmpComp = cardBtnUpgrade.AddComponent<TextMeshProUGUI>();
-            cardBtnUpgrade_TmpComp.font = font;
-            cardBtnUpgrade_TmpComp.fontSize = fontSize;
+            cardBtnUpgrade = UI.GenerateButton((RectTransform)parent.transform, "BtnUpgrade",
+                AnchorPresets.TopLeft, PivotPresets.TopLeft, new Vector2(0.65f, -0.4f), new Vector2(0.3f, 0.55f));
+            cardBtnUpgrade.textComp.font = font;
+            cardBtnUpgrade.textComp.fontSize = fontSize;
         }
         #endregion
 
@@ -267,40 +254,36 @@ public class ProducerMenu : MonoBehaviour
             if (isPurchased)
             {
                 var cardTmpLevel_TmpObserve = cardTmpLevel.AddComponent<TMP_Observe>();
-                cardTmpLevel_TmpObserve.URI = new string[] { Producer.gameObject.name + "." + Producer.Name + ".Level" };
+                cardTmpLevel_TmpObserve.URI = new string[] { Producer.gameObject.name + "." + ProducerType.ToString() + ".Level" };
                 cardTmpLevel_TmpObserve.format = "| LVL {0:000}";
             }
         }
         private void setIsPurchased_CardBtnLevelUp(bool isPurchased)
         {
-            var cardBtnLevelUp_TmpComp = cardBtnLevelUp.GetComponent<TextMeshProUGUI>();
-            var cardBtnLevelUp_BtnComp = cardBtnLevelUp.GetComponent<Button>();
             if (isPurchased)
             {
-                cardBtnLevelUp_BtnComp.onClick.AddListener(btnLevelUp_OnClick);
-                var cardBtnLevelUp_TmpObserve = cardBtnLevelUp.AddComponent<TMP_Observe>();
-                cardBtnLevelUp_TmpObserve.URI = new string[] { Producer.gameObject.name + "." + Producer.Name + ".LevelCost" };
+                cardBtnLevelUp.btnComp.onClick.AddListener(btnLevelUp_OnClick);
+                var cardBtnLevelUp_TmpObserve = cardBtnLevelUp.textComp.gameObject.AddComponent<TMP_Observe>();
+                cardBtnLevelUp_TmpObserve.URI = new string[] { Producer.gameObject.name + "." + ProducerType.ToString() + ".LevelCost" };
                 cardBtnLevelUp_TmpObserve.format = "LVL UP\r\n{0:C2}";
             }
             else
             {
-                cardBtnLevelUp_TmpComp.SetText("Purchase" + Environment.NewLine + ((double)_ProducerType.GetField("PurchasePrice").GetValue(null)).ToString("#.##"));
-                cardBtnLevelUp_BtnComp.onClick.AddListener(btnPurchase_OnClick);
+                cardBtnLevelUp.textComp.SetText("Purchase" + Environment.NewLine + ((double)_ProducerType.GetField("PurchasePrice").GetValue(null)).ToString("#.##"));
+                cardBtnLevelUp.btnComp.onClick.AddListener(btnPurchase_OnClick);
             }
         }
         private void setIsPurchased_CardBtnUpgrade(bool isPurchased)
         {
-            var cardBtnUpgrade_BtnComp = cardBtnUpgrade.GetComponent<Button>();
-            var cardBtnUpgrade_TmpComp = cardBtnUpgrade.GetComponent<TextMeshProUGUI>();
             if (isPurchased)
             {
-                cardBtnUpgrade_TmpComp.SetText("Upgrades");
-                cardBtnUpgrade_BtnComp.onClick.AddListener(btnUpgrade_OnClick);
+                cardBtnUpgrade.gameObject.SetActive(true);
+                cardBtnUpgrade.textComp.SetText("Upgrades");
+                cardBtnUpgrade.btnComp.onClick.AddListener(btnUpgrade_OnClick);
             }
             else
             {
-                cardBtnUpgrade_BtnComp.enabled = false;
-                cardBtnUpgrade_TmpComp.enabled = false;
+                cardBtnUpgrade.gameObject.SetActive(false);
             }
         }
         #endregion
@@ -318,7 +301,7 @@ public class ProducerMenu : MonoBehaviour
         private void btnPurchase_OnClick()
         {
             GameObject producer_go = new GameObject((string)ProducerType.GetField("Name").GetValue(null));
-            Producer = (ProducerBase)producer_go.AddComponent(ProducerType); // due to required component this should also add the upgrade manager
+            Producer = producer_go.AddComponent(ProducerType) as ProducerBase; // due to required component this should also add the upgrade manager
             producer_go.transform.parent = GameObject.Find("Producers").transform;
 
             // enable various components
@@ -340,5 +323,6 @@ public class ProducerMenu : MonoBehaviour
         public TMP_FontAsset font;
         public float fontSize;
         public Sprite image;
+        public Color color;
     }
 }
