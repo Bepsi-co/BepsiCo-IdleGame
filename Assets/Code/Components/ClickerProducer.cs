@@ -5,10 +5,6 @@ using UnityEngine;
 [RequireComponent(typeof(ClickerUpgradeManager))]
 public class ClickerProducer : ProducerBase
 {
-    // configuration
-    public new const string Name = "Clicker";
-    public new const double PurchasePrice = 100;
-
     bool clicked = false;
     public override void Start(){
         base.Start();

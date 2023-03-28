@@ -21,10 +21,8 @@ public class KyleUpgradeManager : UpgradeManagerBase
     #endregion
 
     // Start is called before the first frame update
-    public override void Start()
+    void Start()
     {
-        base.Start();
-
         // set upgrade array
         #region Upgrades
         /* Upgrades */
