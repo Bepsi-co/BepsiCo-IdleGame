@@ -135,7 +135,7 @@ public class ProducerMenu : MonoBehaviour
 
             // make card elements
             generateCardImage(cardRoot, config.image);
-            generateCardTmpTitle(cardRoot, (Producer != null ? Producer.Name : (string)ProducerType.GetField("Name").GetValue(null)), 
+            generateCardTmpTitle(cardRoot, (string)ProducerType.GetField("Name").GetValue(null), 
                 config.font, config.fontSize);
             generateCardTmpLevel(cardRoot, config.font, config.fontSize);
             generateCardBtnLevel(cardRoot, config.font, config.fontSize);

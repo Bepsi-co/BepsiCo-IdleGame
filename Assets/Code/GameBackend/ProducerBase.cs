@@ -27,10 +27,8 @@ public abstract class ProducerBase : MonoBehaviour
 
     // configuration
     #region constants
-    public string Name { get => _Name; }
-    protected const string _Name = "";
-    public double PurchasePrice { get => _PurchasePrice; }
-    protected const double _PurchasePrice = 100;
+    public const string Name = "";
+    public const double PurchasePrice = 100;
     #endregion
 
 
