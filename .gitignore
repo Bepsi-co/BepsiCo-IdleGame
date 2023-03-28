@@ -10,8 +10,8 @@
 # [Aa]ssets/AssetStoreTools*
 
 # Imported Assets
-Assets/TextMesh Pro/
-Assets/TextMesh Pro.meta
+Assets/TextMesh Pro
+TextMesh Pro.meta
 
 # Visual Studio cache directory
 .vs/
