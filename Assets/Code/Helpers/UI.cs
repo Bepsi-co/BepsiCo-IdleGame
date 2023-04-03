@@ -57,6 +57,11 @@ namespace Assets.Code.Helpers
         public TextMeshProUGUI textComp;
     }
 
+    public struct ScrollDescriptor
+    {
+
+    }
+
     public static class UI
     {
         public static void SetAnchor(this RectTransform source, AnchorPresets align)
