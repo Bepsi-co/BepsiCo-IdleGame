@@ -1,3 +1,5 @@
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,7 +23,7 @@ public abstract class ProducerBase : MonoBehaviour
 
     // pointers
     protected Core Coreptr = null;
-    public UpgradeManagerBase UMptr = null;
+    [NonSerialized] public UpgradeManagerBase UMptr = null;
     //protected ProducerVisual PVptr = null;
 
 

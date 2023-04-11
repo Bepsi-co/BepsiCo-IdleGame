@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1561709276030002727}
   - component: {fileID: 5865649969901374509}
   m_Layer: 5
-  m_Name: Level
+  m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25,17 +25,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2127136655784159261}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8960796263061119977}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -17.412018, y: 55.97}
+  m_AnchoredPosition: {x: -17.411957, y: 55.97}
   m_SizeDelta: {x: 125.18, y: 31.46}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1561709276030002727
@@ -66,7 +66,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Kyle
+  m_text: 'Title
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -146,6 +148,7 @@ GameObject:
   - component: {fileID: 8960796263061119977}
   - component: {fileID: 7599697622788479391}
   - component: {fileID: 3705205872209185843}
+  - component: {fileID: 757406106556102879}
   m_Layer: 5
   m_Name: CardBase
   m_TagString: Untagged
@@ -168,8 +171,8 @@ RectTransform:
   - {fileID: 3808316920908404595}
   - {fileID: 2489085663848433420}
   - {fileID: 4049438721326170037}
-  - {fileID: 8770021440518134007}
   - {fileID: 8294044767143082216}
+  - {fileID: 8770021440518134007}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -216,6 +219,22 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &757406106556102879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2804459214791864504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 079aa58210527524a821c9badb663f82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ProducerPrefab: {fileID: 0}
+  gobj_UpgradeButton: {fileID: 4931301965943255280}
+  gobj_LevelUpButton: {fileID: 3524379929214520773}
+  gobj_LevelText: {fileID: 3502971608959213726}
 --- !u!1 &3502971608959213726
 GameObject:
   m_ObjectHideFlags: 0
@@ -228,7 +247,7 @@ GameObject:
   - component: {fileID: 149058883328073359}
   - component: {fileID: 7891815399549305388}
   m_Layer: 5
-  m_Name: Title
+  m_Name: Level
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -247,7 +266,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8960796263061119977}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -661,7 +680,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 72acdd7b690fd764faad9d32b69fe2a1, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1

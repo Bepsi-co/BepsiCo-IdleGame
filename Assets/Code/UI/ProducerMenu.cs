@@ -254,7 +254,7 @@ public class ProducerMenu : MonoBehaviour
             if (isPurchased)
             {
                 var cardTmpLevel_TmpObserve = cardTmpLevel.AddComponent<TMP_Observe>();
-                cardTmpLevel_TmpObserve.URI = new string[] { Producer.gameObject.name + "." + ProducerType.ToString() + ".Level" };
+                cardTmpLevel_TmpObserve.URIs = new string[] { Producer.gameObject.name + "." + ProducerType.ToString() + ".Level" };
                 cardTmpLevel_TmpObserve.format = "| LVL {0:000}";
             }
         }
@@ -264,7 +264,7 @@ public class ProducerMenu : MonoBehaviour
             {
                 cardBtnLevelUp.btnComp.onClick.AddListener(btnLevelUp_OnClick);
                 var cardBtnLevelUp_TmpObserve = cardBtnLevelUp.textComp.gameObject.AddComponent<TMP_Observe>();
-                cardBtnLevelUp_TmpObserve.URI = new string[] { Producer.gameObject.name + "." + ProducerType.ToString() + ".LevelCost" };
+                cardBtnLevelUp_TmpObserve.URIs = new string[] { Producer.gameObject.name + "." + ProducerType.ToString() + ".LevelCost" };
                 cardBtnLevelUp_TmpObserve.format = "LVL UP\r\n{0:C2}";
             }
             else
