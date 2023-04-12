@@ -26,8 +26,7 @@ public abstract class UpgradeManagerBase : MonoBehaviour
     protected double _ResetCost;
 
     protected Core Coreptr = null;
-    protected UpgradeManagerBase UMptr = null;
-    protected ProducerBase Pptr = null;
+    [NonSerialized] public ProducerBase Pptr = null;
 
     // should be bound to a UI button somehow?
     // resets the upgrade manager
@@ -79,6 +78,6 @@ public abstract class UpgradeManagerBase : MonoBehaviour
     public virtual void Start()
     {
         Coreptr = GameObject.Find("Core").GetComponent<Core>();
-        Pptr = GetComponentInParent<ProducerBase>();
+        Pptr = GetComponent<ProducerBase>();
     }
 }
