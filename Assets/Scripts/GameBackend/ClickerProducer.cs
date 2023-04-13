@@ -5,14 +5,10 @@ using UnityEngine;
 [RequireComponent(typeof(ClickerUpgradeManager))]
 public class ClickerProducer : ProducerBase
 {
-    // configuration
-    public new const string Name = "Clicker";
-    public new const double PurchasePrice = 100;
-
     bool clicked = false;
     public override void Start(){
         base.Start();
-        BaseProduction = 100;
+        Production = 100;
     }
     
     //When clicked
@@ -31,7 +27,7 @@ public class ClickerProducer : ProducerBase
             {
                 ProductionThisTick += UMptr.Tick();
             }
-            ProductionThisTick += BaseProduction;
+            ProductionThisTick += Production;
             clicked = false;
         }
 

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4295502063900354105}
   - component: {fileID: 1687191117153001391}
-  - component: {fileID: 1754461507882166638}
+  - component: {fileID: 6645545805468268797}
   m_Layer: 0
   m_Name: Kyle
   m_TagString: Untagged
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e571b7fe91bf9240a572c6daf165c76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1754461507882166638
+--- !u!114 &6645545805468268797
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -54,6 +54,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5652155396358724807}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9b3a338841d8764aba7e6820500c498, type: 3}
+  m_Script: {fileID: 11500000, guid: f169667856de10b4cbc5b0dec04881b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  config: {fileID: 11400000, guid: 7c0bdf6dafca8b24b8f7cb377f2607a2, type: 2}

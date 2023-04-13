@@ -8,6 +8,8 @@ public class ProducerCard : MonoBehaviour
 {
     [SerializeField] [Tooltip("reference to producer prefab")]
     public GameObject ProducerPrefab;
+    private GameObject gobj_Producer;
+    private ProducerBase Producer;
 
     [SerializeField] [Tooltip("reference to upgrade button")]
     public GameObject gobj_UpgradeButton;
@@ -29,6 +31,7 @@ public class ProducerCard : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Producer = ProducerPrefab.GetComponentInChildren<ProducerBase>();
         UpgradeButtonText = gobj_UpgradeButton.GetComponentInChildren<TextMeshProUGUI>();
         UpgradeButton = gobj_UpgradeButton.GetComponent<Button>();
         LevelUpButtonText = gobj_LevelUpButton.GetComponentInChildren<TextMeshProUGUI>();
@@ -42,9 +45,6 @@ public class ProducerCard : MonoBehaviour
         isPurchased = _isPurchased;
         if (IsPurchased)
         {
-            // instantiate prefab
-            GameObject.Instantiate(ProducerPrefab);
-
             // button binding updates
             UpgradeButton.onClick.RemoveAllListeners();
             LevelUpButton.onClick.RemoveAllListeners();
@@ -53,9 +53,11 @@ public class ProducerCard : MonoBehaviour
 
             // text updates
             UpgradeButtonText.SetText("Upgrade");
-            LevelUpButtonText.SetText("Level Up");
+            UpgradeButtonText.alignment = TextAlignmentOptions.Center;
+            LevelUpButtonText.SetText(string.Format("Level Up\r\n{0:C0}", Producer.LevelPrice));
+            LevelUpButtonText.alignment = TextAlignmentOptions.Center;
             gobj_LevelUpButton.SetActive(true);
-            LevelText.SetText(string.Format("| LVL {}"));
+            LevelText.SetText(string.Format("Level: {0:D}", Producer.Level));
             gobj_LevelText.SetActive(true);
         }
         else
@@ -66,8 +68,10 @@ public class ProducerCard : MonoBehaviour
             UpgradeButton.onClick.AddListener(btnPurchase_OnClick);
 
             // text updates
-            UpgradeButtonText.SetText("Purchase");
+            UpgradeButtonText.SetText(string.Format("Purchase\r\n{0:C0}", Producer.config.BasePurchasePrice));
+            UpgradeButtonText.alignment = TextAlignmentOptions.Center;
             LevelUpButtonText.SetText("");
+            LevelUpButtonText.alignment = TextAlignmentOptions.Center;
             gobj_LevelUpButton.SetActive(false);
             LevelText.SetText(string.Format(""));
             gobj_LevelText.SetActive(false);
@@ -76,11 +80,16 @@ public class ProducerCard : MonoBehaviour
 
     private void btnLevelUp_OnClick()
     {
-
+        Producer.LevelUp();
+        LevelText.SetText(string.Format("Level: {0:D}", Producer.Level));
     }
 
     private void btnPurchase_OnClick()
     {
+        // instantiate prefab
+        gobj_Producer = Instantiate(ProducerPrefab);
+        Producer = gobj_Producer.GetComponentInChildren<ProducerBase>();
+
         setIsPurchased(true);
     }
 

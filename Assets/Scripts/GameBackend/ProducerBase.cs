@@ -6,49 +6,52 @@ using UnityEngine;
 
 [RequireComponent(typeof(UpgradeManagerBase))]
 //[RequireComponent(typeof(ProducerVisual))]
-public abstract class ProducerBase : MonoBehaviour
+public class ProducerBase : MonoBehaviour
 {
     #region Public Properties
-    public double BaseProduction { get => _BaseProduction; set => _BaseProduction = value; }
-    protected double _BaseProduction;
+    public double Production { get => _Production; set => _Production = value; }
+    protected double _Production;
 
     public double ProductionLastTick { get => _ProductionLastTick; set => _ProductionLastTick = value; }
     protected double _ProductionLastTick;
 
     public long Level { get => _Level; protected set => _Level = value; }
     protected long _Level;
-    public long LevelCost { get => _LevelCost; protected set => _LevelCost = value; }
-    protected long _LevelCost;
+
+    public double LevelPrice { get => _LevelPrice; protected set => _LevelPrice = value; }
+    protected double _LevelPrice;
     #endregion
 
     // pointers
     protected Core Coreptr = null;
     [NonSerialized] public UpgradeManagerBase UMptr = null;
-    //protected ProducerVisual PVptr = null;
 
-
-    // configuration
-    #region constants
-    public const string Name = "";
-    public const double PurchasePrice = 100;
-    #endregion
+    // inspector
+    [SerializeField]
+    public ProducerConfigSO config;
 
 
     // Start is called before the first frame update
     public virtual void Start()
     {
+        // pointers
         Coreptr = GameObject.Find("Core").GetComponent<Core>();
         UMptr = GetComponentInParent<UpgradeManagerBase>();
-        //PVptr = GetComponentInParent<ProducerVisual>();
+
+        // data init
         ProductionLastTick = 0;
         Level = 0;
+
+        // config
+        Production = config.BaseProduction;
+        LevelPrice = config.BaseLevelPrice;
     }
 
     // Update is called once per frame
     public virtual void FixedUpdate()
     {
         //Divide per tick value by 50 to convert to a per second value.
-        Coreptr.Bank += Tick() / 50f;
+        Coreptr.Bank += Tick() / 50.0f;
     }
     protected virtual double Tick()
     {
@@ -61,7 +64,7 @@ public abstract class ProducerBase : MonoBehaviour
         }
 
         // Base Production
-        ProductionThisTick += BaseProduction;
+        ProductionThisTick += Production;
 
         // return
         ProductionLastTick = ProductionThisTick;
@@ -71,10 +74,10 @@ public abstract class ProducerBase : MonoBehaviour
     // returns true on success
     public virtual bool LevelUp()
     {
-        if(Coreptr != null && Coreptr.Bank > LevelCost)
+        if(Coreptr != null && Coreptr.Bank > LevelPrice)
         {
             Level++;
-            LevelCost *= 2;
+            config.BaseLevelPrice *= 2;
             return true;
         }
         else
