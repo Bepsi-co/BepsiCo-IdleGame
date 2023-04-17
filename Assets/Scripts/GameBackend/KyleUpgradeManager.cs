@@ -21,9 +21,9 @@ public class KyleUpgradeManager : UpgradeManagerBase
     #endregion
 
     // Start is called before the first frame update
-    public override void Start()
+    public override void Awake()
     {
-        base.Start();
+        base.Awake();
 
         // set upgrade array
         #region Upgrades
@@ -35,7 +35,7 @@ public class KyleUpgradeManager : UpgradeManagerBase
         {
             Cost = 10,
             Description = "Increase BaseIncome by 10",
-            OnPurchase = (p, um) => { BonusProduction += 10;  p.BaseProduction += 10; },
+            OnPurchase = (p, um) => { BonusProduction += 10;  p.Production += 10; },
             OnTick = null
         };
         Upgrade upgradeP1U2 = upgradeP1U1;
@@ -65,7 +65,7 @@ public class KyleUpgradeManager : UpgradeManagerBase
                 {
                     tickCounter++;
                 }
-                return (p.BaseProduction * BonusProductionMultProcs * BonusProductionMultPerProc);
+                return (p.Production * BonusProductionMultProcs * BonusProductionMultPerProc);
             }
         };
         Upgrade upgradeP2U2 = new Upgrade()
@@ -103,14 +103,14 @@ public class KyleUpgradeManager : UpgradeManagerBase
         {
             Cost = 100,
             Description = "Kyle opens a Brewery. No longer produces income, boosts other members income by 5%",
-            OnPurchase = (p, um) => { p.BaseProduction = BonusProduction; ProductionBoost = 0.05; },
+            OnPurchase = (p, um) => { p.Production = BonusProduction; ProductionBoost = 0.05; },
             OnTick = (p, um) =>
             {
                 // TODO. adds a callback to ui for purchasing new producers
                 double acc = 0;
                 foreach(ProducerBase prod in otherProducers)
                 {
-                    acc += prod.BaseProduction * ProductionBoost;
+                    acc += prod.Production * ProductionBoost;
                 }
                 return acc;
             }

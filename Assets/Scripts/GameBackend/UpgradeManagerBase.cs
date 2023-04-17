@@ -75,7 +75,7 @@ public abstract class UpgradeManagerBase : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    public virtual void Start()
+    public virtual void Awake()
     {
         Coreptr = GameObject.Find("Core").GetComponent<Core>();
         Pptr = GetComponent<ProducerBase>();
