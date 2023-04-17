@@ -6,8 +6,8 @@ using UnityEngine;
 public class ClickerProducer : ProducerBase
 {
     bool clicked = false;
-    public override void Start(){
-        base.Start();
+    public override void Awake(){
+        base.Awake();
         Production = 100;
     }
     

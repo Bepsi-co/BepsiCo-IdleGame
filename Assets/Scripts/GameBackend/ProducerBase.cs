@@ -32,7 +32,7 @@ public class ProducerBase : MonoBehaviour
 
 
     // Start is called before the first frame update
-    public virtual void Start()
+    public virtual void Awake()
     {
         // pointers
         Coreptr = GameObject.Find("Core").GetComponent<Core>();

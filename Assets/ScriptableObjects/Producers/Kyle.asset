@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ProducerName: '"Kyle"'
   BasePurchasePrice: 100
-  BaseLevelPrice: 16384000
+  BaseLevelPrice: 1000
   BaseProduction: 10
